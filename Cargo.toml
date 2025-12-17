@@ -9,7 +9,7 @@ keywords = ["i2c", "gpio-expander", "gpio", "pca", "pcf"]
 categories = ["embedded", "no-std", "hardware-support"]
 publish = ["kellnr"]
 
-version = "0.6.7"
+version = "0.6.8"
 
 edition = "2021"
 
