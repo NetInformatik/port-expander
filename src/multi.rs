@@ -113,6 +113,41 @@ where
     Ok(ret)
 }
 
+/// Set the open-drain state of multiple pins at the same time.
+/// 
+/// This may require two bus transactions depending on whether all pins are set to input or output.
+pub fn set_open_drain_multiple<PD, MUTEX, MODE: crate::mode::HasOpenDrain, const N: usize>(
+    pins: [&mut crate::Pin<'_, MODE, MUTEX>; N],
+    states: [bool; N],
+) -> Result<(), PD::Error>
+where
+    PD: crate::PortDriver + crate::PortDriverTotemPole,
+    MUTEX: crate::PortMutex<Port = PD>,
+{
+    let mut mask_input = 0x00;
+    let mut mask_output = 0x00;
+
+    let port_driver = pins[0].port_driver();
+    for (pin, state) in pins.iter().zip(states.iter()) {
+        assert!(core::ptr::eq(pin.port_driver(), port_driver));
+        if *state {
+            mask_input |= pin.pin_mask();
+        } else {
+            mask_output |= pin.pin_mask();
+        }
+    }
+
+    pins[0].port_driver().lock(|drv| {
+        if mask_input != 0 {
+            drv.set_direction(mask_input, crate::Direction::Input, false)?;
+        }
+        if mask_output != 0 {
+            drv.set_direction(mask_output, crate::Direction::Output, false)?;
+        }
+        Ok(())
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use embedded_hal_mock::eh1::i2c as mock_i2c;

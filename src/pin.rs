@@ -127,6 +127,32 @@ where
             _m: PhantomData,
         })
     }
+
+    /// Configure this pin as an open-drain output with an initial HIGH (floating input) state.
+    pub fn into_open_drain_high(
+        self,
+    ) -> Result<Pin<'a, crate::mode::OpenDrain, MUTEX>, PinError<PD::Error>> {
+        self.port_driver
+            .lock(|drv| drv.set_direction(self.pin_mask, crate::Direction::Input, false))?;
+        Ok(Pin {
+            pin_mask: self.pin_mask,
+            port_driver: self.port_driver,
+            _m: PhantomData,
+        })
+    }
+
+    /// Configure this pin as an open-drain output with an initial LOW (output driving LOW) state.
+    pub fn into_open_drain_low(
+        self,
+    ) -> Result<Pin<'a, crate::mode::OpenDrain, MUTEX>, PinError<PD::Error>> {
+        self.port_driver
+            .lock(|drv| drv.set_direction(self.pin_mask, crate::Direction::Output, false))?;
+        Ok(Pin {
+            pin_mask: self.pin_mask,
+            port_driver: self.port_driver,
+            _m: PhantomData,
+        })
+    }
 }
 
 impl<'a, MODE, MUTEX, PD> Pin<'a, MODE, MUTEX>
@@ -288,5 +314,33 @@ where
 
     fn toggle(&mut self) -> Result<(), Self::Error> {
         Pin::toggle(self)
+    }
+}
+
+impl<'a, MODE: crate::mode::HasOpenDrain, MUTEX, PD> Pin<'a, MODE, MUTEX>
+where
+    PD: crate::PortDriver + crate::PortDriverTotemPole,
+    MUTEX: crate::PortMutex<Port = PD>,
+{
+    /// Set to open-drain output HIGH (floating input).
+    pub fn set_open_drain_high(&mut self) -> Result<(), PinError<PD::Error>> {
+        self.port_driver
+            .lock(|drv| {
+                drv.set_direction(self.pin_mask, crate::Direction::Input, false)
+            }
+        )?;
+
+        Ok(())
+    }
+
+    /// Set to open-drain output LOW. (output driving LOW)
+    pub fn set_open_drain_low(&mut self) -> Result<(), PinError<PD::Error>> {
+        self.port_driver
+            .lock(|drv| {
+                drv.set_direction(self.pin_mask, crate::Direction::Output, false) 
+            }
+        )?;
+
+        Ok(())
     }
 }

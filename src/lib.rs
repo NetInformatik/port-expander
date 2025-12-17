@@ -70,6 +70,7 @@ pub use bus::I2cBus;
 pub use common::mode;
 pub use multi::read_multiple;
 pub use multi::write_multiple;
+pub use multi::set_open_drain_multiple;
 pub use mutex::PortMutex;
 pub use pin::Pin;
 pub use pin::PinError;
