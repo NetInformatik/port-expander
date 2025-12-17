@@ -66,6 +66,8 @@ pub mod mode {
     pub trait HasOutput {}
     /// Trait for pin-modes which can be used to read a logic level.
     pub trait HasInput {}
+    /// Trait for pin-modes which can be used to dynamically change direction.
+    pub trait HasOpenDrain {}
 
     /// Pin configured as an input.
     pub struct Input;
@@ -79,4 +81,7 @@ pub mod mode {
     pub struct QuasiBidirectional;
     impl HasInput for QuasiBidirectional {}
     impl HasOutput for QuasiBidirectional {}
+
+    // Pin configured as a open-drain output.
+    pub struct OpenDrain;
 }
