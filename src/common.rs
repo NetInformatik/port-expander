@@ -84,4 +84,5 @@ pub mod mode {
 
     // Pin configured as a open-drain output.
     pub struct OpenDrain;
+    impl HasOpenDrain for OpenDrain {}
 }
